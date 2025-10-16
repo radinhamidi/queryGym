@@ -1,0 +1,13 @@
+llm:
+  model: "gpt-4o-mini"
+  base_url: "${OPENAI_BASE_URL:-https://api.openai.com/v1}"
+  api_key: "${OPENAI_API_KEY}"
+  temperature: 0.8
+  max_tokens: 256
+
+params:
+  repeat_query_weight: 3
+  mode: "zs"
+
+seed: 17
+retries: 2

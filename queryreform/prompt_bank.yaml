@@ -1,0 +1,103 @@
+- id: genqr.keywords.v1
+  method_family: genqr
+  version: 1
+  introduced_by: "Generic keywords prompt (baseline)"
+  license: "CC-BY-4.0"
+  authors: ["QueryReform Team"]
+  tags: ["keywords", "expansion"]
+  template:
+    system: |
+      You output only comma-separated keywords. No sentences.
+    user: |
+      Suggest keywords to improve retrieval for this query:
+      "{query}"
+      Return only keywords.
+  notes: |
+    Minimal keyword expansion; consumers split by comma.
+
+- id: genqr.keywords.variant.v1
+  method_family: genqr
+  version: 1
+  introduced_by: "Variant phrasing"
+  license: "CC-BY-4.0"
+  authors: ["QueryReform Team"]
+  tags: ["keywords", "expansion"]
+  template:
+    system: |
+      Produce a short list of expansion terms, comma-separated.
+    user: |
+      Recommend expansion terms that would improve search results for:
+      "{query}"
+
+- id: query2doc.zeroshot.v1
+  method_family: query2doc
+  version: 1
+  introduced_by: "Nogueira et al., 2019 style pseudo-doc"
+  license: "CC-BY-4.0"
+  authors: ["QueryReform Team"]
+  tags: ["pseudo-document", "zs"]
+  template:
+    system: |
+      Write a short, relevant passage to the user's query.
+    user: |
+      Query: "{query}"
+      Write a 3-5 sentence passage that would be highly relevant.
+
+- id: query2doc.cot.v1
+  method_family: query2doc
+  version: 1
+  introduced_by: "Chain-of-thought pseudo-doc"
+  license: "CC-BY-4.0"
+  authors: ["QueryReform Team"]
+  tags: ["pseudo-document", "cot"]
+  template:
+    system: |
+      Reason briefly then write a concise relevant passage.
+    user: |
+      Think step-by-step about the information need for: "{query}"
+      Then write a 3-5 sentence passage that would be highly relevant.
+
+- id: qa_expand.subq.v1
+  method_family: qa_expand
+  version: 1
+  introduced_by: "Sub-question generator"
+  license: "CC-BY-4.0"
+  authors: ["QueryReform Team"]
+  tags: ["qa", "decomposition"]
+  template:
+    system: |
+      Create 3-5 concise sub-questions, comma-separated.
+    user: |
+      Break the query into sub-questions: "{query}"
+
+- id: qa_expand.answer.v1
+  method_family: qa_expand
+  version: 1
+  introduced_by: "Answer with given contexts"
+  license: "CC-BY-4.0"
+  authors: ["QueryReform Team"]
+  tags: ["qa"]
+  template:
+    system: |
+      Answer using only the provided contexts.
+    user: |
+      Query: "{query}"
+      Contexts:
+      {contexts}
+      Answer concisely.
+
+- id: qa_expand.refine.v1
+  method_family: qa_expand
+  version: 1
+  introduced_by: "Refine final reformulation"
+  license: "CC-BY-4.0"
+  authors: ["QueryReform Team"]
+  tags: ["refinement"]
+  template:
+    system: |
+      Rewrite the query to maximize retrieval recall while keeping specificity.
+    user: |
+      Original: "{query}"
+      Sub-questions: {subqs}
+      Answers: {answers}
+      Produce the final improved query.
