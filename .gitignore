@@ -44,7 +44,8 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
-queries.tsv
+queries_10.tsv
+queries_all.tsv
 output.tsv
 
 # Translations

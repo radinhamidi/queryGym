@@ -4,25 +4,6 @@ import re
 from ..core.base import BaseReformulator, QueryItem, ReformulationResult
 from ..core.registry import register_method
 
-def normalize_text(text: str) -> str:
-    """
-    Normalize text to a single line by:
-    - Replacing all newlines/tabs with spaces
-    - Collapsing multiple spaces into single spaces
-    - Stripping leading/trailing whitespace
-    """
-    if not text:
-        return ""
-    
-    # Replace all newlines, carriage returns, and tabs with spaces
-    text = text.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
-    
-    # Collapse multiple spaces into single space
-    text = re.sub(r'\s+', ' ', text)
-    
-    # Strip leading/trailing whitespace
-    return text.strip()
-
 def parse_llm_json(text: str) -> dict:
     """
     Robust JSON parser for LLM outputs that handles common formatting issues:
@@ -192,12 +173,11 @@ class QAExpand(BaseReformulator):
         refined_dict = parse_llm_json(refined_answers_json)
         if refined_dict:
             # Extract answer values in order (answer1, answer2, answer3)
-            # Normalize each value to single line
-            answer_values = [normalize_text(str(v)) for k, v in sorted(refined_dict.items()) if v and str(v).strip()]
+            answer_values = [str(v) for k, v in sorted(refined_dict.items()) if v and str(v).strip()]
             refined_text = " ".join(answer_values)
         else:
-            # Fallback if JSON parsing fails - normalize raw text to single line
-            refined_text = normalize_text(refined_answers_json)
+            # Fallback if JSON parsing fails - use raw text
+            refined_text = refined_answers_json
         
         # Step 4: Expand query: (Q × 3) + refined_answers
         reformulated = self.concatenate_result(q.text, refined_text, query_repeats=k)
