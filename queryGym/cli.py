@@ -71,10 +71,11 @@ def run(method: str = typer.Option(...),
         from .data.dataloader import UnifiedContextSource
         ctx_src = UnifiedContextSource(mode="file", path=ctx_jsonl)
         ctx_map = ctx_src.load(queries)
+    # Pass ctx_map as-is (None if not provided, dict if provided)
     results = run_method(method_name=method, cfg=mc, queries=queries,
                          prompt_bank_path=str(prompt_bank), ctx_map=ctx_map)
     with open(output_tsv, "w", encoding="utf-8") as f:
-        w = csv.writer(f, delimiter="\t")
+        w = csv.writer(f, delimiter="\t", quoting=csv.QUOTE_NONE, escapechar='\\')
         for r in results:
             w.writerow([r.qid, r.reformulated])
     typer.echo(f"Wrote {output_tsv}")
