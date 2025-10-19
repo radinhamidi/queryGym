@@ -206,7 +206,7 @@
   tags: ["qa", "decomposition"]
   template:
     system: |
-      Create 3-5 concise sub-questions, comma-separated.
+      You are a helpful assistant. Based on the following query, generate 3 possible related questions that someone might ask.
     user: |
       Break the query into sub-questions: "{query}"
 
@@ -219,12 +219,9 @@
   tags: ["qa"]
   template:
     system: |
-      Answer using only the provided contexts.
+      You are a knowledgeable assistant. The user provides 3 questions in JSON format. For each question, produce a document style answer. Each answer must: Be informative regarding the question. Return all answers in JSON format with the keys answer1, answer2, and answer3. For example: {{"answer1": "...", "answer2": "...", "answer3": "..."}}
     user: |
-      Query: "{query}"
-      Contexts:
-      {contexts}
-      Answer concisely.
+      Questions to answer: "{questions}"
 
 - id: qa_expand.refine.v1
   method_family: qa_expand
@@ -235,12 +232,10 @@
   tags: ["refinement"]
   template:
     system: |
-      Rewrite the query to maximize retrieval recall while keeping specificity.
+      You are an evaluation assistant. You have an initial query and answers provided in JSON format. Your role is to check how relevant and correct each answer is. Return only those answers that are relevant and correct to the initial query. Omit or leave blank any that are incorrect, irrelevant, or too vague. If needed, please rewrite the answer in a better way. Return your result in JSON with the same structure: {{"answer1": "Relevant/correct...", "answer2": "Relevant/correct...", "answer3": "Relevant/correct..."}} If an answer is irrelevant, do not include it at all or leave it empty. Focus on ensuring the final JSON only contains the best content for retrieval.
     user: |
-      Original: "{query}"
-      Sub-questions: {subqs}
-      Answers: {answers}
-      Produce the final improved query.
+      Initial query: "{query}"
+      Answers: "{answers}"
 
 - id: mugi.zeroshot.v1
   method_family: mugi
@@ -383,3 +378,19 @@
       please write a correct relevant passage.
   notes: |
     LameR variant for news article retrieval. Tailored for TREC-News dataset with relevant news passages.
+
+- id: csqe.extract.v1
+  method_family: csqe
+  version: 1
+  introduced_by: "CSQE key sentence extraction"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["context-based", "extraction", "relevance"]
+  template:
+    user: |
+      Query: "{query}"
+      Retrieved documents:
+      {contexts}
+      You will begin by examining the initially retrieved documents and identifying the ones that are relevant, even partially, to the query. Once the relevant documents are identified, you will extract the key sentences from each document that contribute to their relevance.
+  notes: |
+    CSQE (Context-based Sentence-level Query Expansion) extracts key relevant sentences from retrieved documents to enhance the query.
