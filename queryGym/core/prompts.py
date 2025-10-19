@@ -27,9 +27,24 @@ class PromptBank:
 
     def render(self, prompt_id: str, **vars) -> List[Dict[str, str]]:
         spec = self._by_id[prompt_id]
-        sys = spec.template.get("system","").format(**vars)
-        usr = spec.template.get("user","").format(**vars)
-        return [{"role":"system","content":sys},{"role":"user","content":usr}]
+        messages = []
+        
+        # System message (if present)
+        if "system" in spec.template:
+            sys = spec.template.get("system","").format(**vars)
+            messages.append({"role":"system","content":sys})
+        
+        # User message (if present)
+        if "user" in spec.template:
+            usr = spec.template.get("user","").format(**vars)
+            messages.append({"role":"user","content":usr})
+        
+        # Assistant message (if present) - for priming responses
+        if "assistant" in spec.template:
+            asst = spec.template.get("assistant","").format(**vars)
+            messages.append({"role":"assistant","content":asst})
+        
+        return messages
 
     def list(self) -> List[str]:
         return list(self._by_id.keys())

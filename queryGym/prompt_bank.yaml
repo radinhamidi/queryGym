@@ -101,3 +101,145 @@
       Sub-questions: {subqs}
       Answers: {answers}
       Produce the final improved query.
+
+- id: mugi.zeroshot.v1
+  method_family: mugi
+  version: 1
+  introduced_by: "MuGI PassageGenGPT prompt"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["pseudo-document", "mugi", "zeroshot"]
+  template:
+    system: |
+      You are PassageGenGPT, an AI capable of generating concise, informative, and clear pseudo passages on specific topics.
+    user: |
+      Generate one passage that is relevant to the following query: '{query}'. The passage should be concise, informative, and clear
+    assistant: |
+      Sure, here's a passage relevant to the query:
+  notes: |
+    MuGI-style prompt with assistant priming for passage generation.
+
+- id: mugi.fewshot.v1
+  method_family: mugi
+  version: 1
+  introduced_by: "MuGI few-shot pseudo-document generation"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["pseudo-document", "mugi", "fewshot"]
+  template:
+    user: |
+      query: how long is life cycle of flea?
+      document: The life cycle of a flea typically lasts around 2-3 months, although it can vary depending on environmental conditions. Fleas undergo complete metamorphosis, which consists of four stages: egg, larva, pupa, and adult. The entire life cycle can be completed in as little as 2 weeks under ideal conditions. Flea eggs are laid on the host animal and then fall off into the environment, where they hatch into larvae. The larvae feed on organic matter and develop into pupae, which eventually emerge as adult fleas. Adult fleas then seek a host to feed on and reproduce, starting the cycle anew. It's important to note that proper flea control measures are necessary to prevent infestations and ensure the well-being of both pets and humans.
+
+      query: cost of interior concrete flooring?
+      document: The cost of interior concrete flooring can vary depending on several factors. On average, the cost can range from $2 to $12 per square foot. Factors that can influence the cost include the complexity of the design, the type of concrete finish desired, and any additional treatments or coatings. Basic concrete flooring tends to be more affordable, while decorative options like stamped or stained concrete can be more expensive. It's important to consider the long-term benefits of concrete flooring, such as its durability and low maintenance requirements, when evaluating the overall cost. Additionally, consulting with a professional contractor can provide a more accurate estimate based on your specific project requirements.
+
+      query: {query}
+      document: 
+  notes: |
+    MuGI few-shot prompt with 2 in-context examples for pseudo-document generation. Performed worse than MuGI zeroshot in experiments (for DL19 NDCG@10).
+
+- id: lamer.dl19_dl20.v1
+  method_family: lamer
+  version: 1
+  introduced_by: "LameR passage synthesis for DL19 and DL20"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["passage-synthesis", "context-based", "dl19", "dl20"]
+  template:
+    user: |
+      Give a question "{query}" and its possible answering passages (most of these passages are wrong) enumerated as:
+      {contexts}
+      please write a correct answering passage.
+  notes: |
+    LameR uses retrieved contexts to synthesize a correct answering passage. Used for DL19 and DL20 datasets.
+
+- id: lamer.scifact.v1
+  method_family: lamer
+  version: 1
+  introduced_by: "LameR passage synthesis for SciFact"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["passage-synthesis", "context-based", "scientific", "scifact"]
+  template:
+    user: |
+      Give a question "{query}" and its possible scientific paper passages (most of these passages are wrong) enumerated as:
+      {contexts}
+      please write a correct scientific paper passage.
+  notes: |
+    LameR variant for scientific fact verification. Tailored for SciFact dataset with scientific paper passages.
+
+- id: lamer.arguana.v1
+  method_family: lamer
+  version: 1
+  introduced_by: "LameR passage synthesis for ArguAna"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["passage-synthesis", "context-based", "argumentation", "arguana"]
+  template:
+    user: |
+      Give a question "{query}" and its possible counter-argument passages (most of these passages are wrong) enumerated as:
+      {contexts}
+      please write a correct counter-argument passage.
+  notes: |
+    LameR variant for counter-argument retrieval. Tailored for ArguAna dataset with counter-argument passages.
+
+- id: lamer.trec_covid.v1
+  method_family: lamer
+  version: 1
+  introduced_by: "LameR passage synthesis for TREC-COVID"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["passage-synthesis", "context-based", "scientific", "trec-covid", "covid"]
+  template:
+    user: |
+      Give a question "{query}" and its possible scientific paper passages (most of these passages are wrong) enumerated as:
+      {contexts}
+      please write a correct scientific paper passage.
+  notes: |
+    LameR variant for COVID-19 scientific literature. Tailored for TREC-COVID dataset with scientific paper passages.
+
+- id: lamer.fiqa.v1
+  method_family: lamer
+  version: 1
+  introduced_by: "LameR passage synthesis for FiQA"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["passage-synthesis", "context-based", "financial", "fiqa"]
+  template:
+    user: |
+      Give a question "{query}" and its possible answering financial article passages (most of these passages are wrong) enumerated as:
+      {contexts}
+      please write a correct answering financial article passage.
+  notes: |
+    LameR variant for financial question answering. Tailored for FiQA dataset with financial article passages.
+
+- id: lamer.dbpedia.v1
+  method_family: lamer
+  version: 1
+  introduced_by: "LameR passage synthesis for DBPedia"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["passage-synthesis", "context-based", "dbpedia"]
+  template:
+    user: |
+      Give a question "{query}" and its possible answering passages (most of these passages are wrong) enumerated as:
+      {contexts}
+      please write a correct answering passage.
+  notes: |
+    LameR variant for DBPedia entity retrieval. General answering passages for knowledge base queries.
+
+- id: lamer.trec_news.v1
+  method_family: lamer
+  version: 1
+  introduced_by: "LameR passage synthesis for TREC-News"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["passage-synthesis", "context-based", "news", "trec-news"]
+  template:
+    user: |
+      Give a question "{query}" and its possible relevant passages (most of these passages are wrong) enumerated as:
+      {contexts}
+      please write a correct relevant passage.
+  notes: |
+    LameR variant for news article retrieval. Tailored for TREC-News dataset with relevant news passages.
