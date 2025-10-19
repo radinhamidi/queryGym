@@ -1,0 +1,21 @@
+# Include package data files
+include queryGym/prompt_bank.yaml
+include queryGym/config/*.yaml
+
+# Include documentation
+include README.md
+include LICENSE
+include CONTRIBUTING.md
+include Structure.md
+
+# Include examples
+recursive-include examples *.py *.tsv *.ipynb
+
+# Include docs
+recursive-include docs *.md
+
+# Exclude development and build artifacts
+global-exclude __pycache__
+global-exclude *.py[co]
+global-exclude .DS_Store
+global-exclude *.egg-info
