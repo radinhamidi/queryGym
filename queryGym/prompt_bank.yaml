@@ -279,10 +279,10 @@
   notes: |
     MuGI few-shot prompt with 2 in-context examples for pseudo-document generation. Performed worse than MuGI zeroshot in experiments (for DL19 NDCG@10).
 
-- id: lamer.dl19_dl20.v1
+- id: lamer.msmarco.v1
   method_family: lamer
   version: 1
-  introduced_by: "LameR passage synthesis for DL19 and DL20"
+  introduced_by: "LameR passage synthesis for MS MARCO V1 Passage"
   license: "CC-BY-4.0"
   authors: ["queryGym Team"]
   tags: ["passage-synthesis", "context-based", "dl19", "dl20"]
@@ -292,7 +292,7 @@
       {contexts}
       please write a correct answering passage.
   notes: |
-    LameR uses retrieved contexts to synthesize a correct answering passage. Used for DL19 and DL20 datasets.
+    LameR uses retrieved contexts to synthesize a correct answering passage. Used for MS MARCO V1 Passage datasets.
 
 - id: lamer.scifact.v1
   method_family: lamer
