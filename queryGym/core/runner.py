@@ -5,6 +5,15 @@ from .llm import OpenAICompatibleClient
 from .prompts import PromptBank
 from .registry import METHODS
 
+# Import all methods to ensure they're registered
+from ..methods.genqr import GENQR
+from ..methods.genqr_ensemble import GenQREnsemble
+from ..methods.query2doc import Query2Doc
+from ..methods.qa_expand import QAExpand
+from ..methods.mugi import MuGI
+from ..methods.lamer import LameR
+from ..methods.query2e import Query2E
+
 def build_llm(cfg: MethodConfig):
     llm_cfg = cfg.llm
     return OpenAICompatibleClient(model=llm_cfg["model"],

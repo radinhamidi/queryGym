@@ -41,7 +41,27 @@ def run(method: str = typer.Option(...),
         ctx_jsonl: Optional[Path] = typer.Option(None, "--ctx-jsonl", help="Optional contexts JSONL"),
 ):
     import yaml
-    cfg = yaml.safe_load(cfg_path.read_text()) if cfg_path else {}
+    import os
+    import re
+    
+    def expand_env_vars(text):
+        """Expand environment variables in YAML content"""
+        def replace_env_var(match):
+            var_expr = match.group(1)
+            if ':-' in var_expr:
+                var_name, default_value = var_expr.split(':-', 1)
+                return os.getenv(var_name, default_value)
+            else:
+                return os.getenv(var_expr, '')
+        
+        return re.sub(r'\$\{([^}]+)\}', replace_env_var, text)
+    
+    if cfg_path:
+        yaml_content = cfg_path.read_text()
+        expanded_content = expand_env_vars(yaml_content)
+        cfg = yaml.safe_load(expanded_content)
+    else:
+        cfg = {}
     mc = MethodConfig(name=method, params=cfg.get("params",{}), llm=cfg["llm"],
                       seed=cfg.get("seed",42), retries=cfg.get("retries",2))
     src = UnifiedQuerySource(backend="local", format="tsv", path=queries_tsv)

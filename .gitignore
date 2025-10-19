@@ -135,4 +135,5 @@ reformulated_queries.tsv
 *.eval.txt
 out/
 data/
+results/
 indices/
