@@ -27,27 +27,29 @@ def parse_llm_json(text: str) -> dict:
     """
     Robust JSON parser for LLM outputs that handles common formatting issues:
     - Markdown code blocks (```json, ```)
-    - Extra whitespace
+    - Escaped quotes (\")
     - Trailing commas
     - Single quotes instead of double quotes
-    - Partial JSON responses
+    - Incomplete/truncated JSON
+    - Extracts key-value pairs even from malformed JSON
     """
     if not text or not text.strip():
         return {}
     
-    # Strip markdown code blocks
+    original_text = text
     text = text.strip()
     
-    # Remove ```json ... ``` or ``` ... ```
+    # Remove markdown code blocks
     if text.startswith("```"):
-        # Find the first newline after opening ```
         first_newline = text.find('\n')
         if first_newline != -1:
             text = text[first_newline+1:]
-        # Remove closing ```
         if text.endswith("```"):
             text = text[:-3]
         text = text.strip()
+    
+    # Unescape common escape sequences that appear in raw output
+    text = text.replace('\\"', '"').replace('\\n', '\n').replace('\\t', '\t')
     
     # Try standard JSON parsing first
     try:
@@ -56,39 +58,58 @@ def parse_llm_json(text: str) -> dict:
         pass
     
     # Remove trailing commas before closing braces/brackets
-    text = re.sub(r',(\s*[}\]])', r'\1', text)
-    
-    # Try again after removing trailing commas
+    cleaned = re.sub(r',(\s*[}\]])', r'\1', text)
     try:
-        return json.loads(text)
+        return json.loads(cleaned)
     except json.JSONDecodeError:
         pass
     
-    # Replace single quotes with double quotes (be careful with apostrophes)
-    # This is a simple heuristic - may not work for all cases
-    text_double_quotes = text.replace("'", '"')
+    # Replace single quotes with double quotes
     try:
-        return json.loads(text_double_quotes)
+        return json.loads(text.replace("'", '"'))
     except json.JSONDecodeError:
         pass
     
-    # Try to extract JSON object using regex (find first { to last })
-    json_match = re.search(r'\{.*\}', text, re.DOTALL)
-    if json_match:
+    # Try to fix incomplete JSON by adding missing closing quotes and braces
+    if '{' in text:
+        # Find the last complete value and try to close it
+        attempt = text.rstrip()
+        
+        # If ends mid-string (no closing quote), add closing quote
+        if attempt.count('"') % 2 == 1:
+            attempt += '"'
+        
+        # Add missing closing brace if needed
+        if not attempt.endswith('}'):
+            attempt += '}'
+        
         try:
-            return json.loads(json_match.group(0))
+            return json.loads(attempt)
         except json.JSONDecodeError:
             pass
     
-    # Try to fix incomplete JSON by adding missing closing brace
-    if '{' in text and not text.rstrip().endswith('}'):
-        try:
-            fixed_text = text.rstrip() + '}'
-            return json.loads(fixed_text)
-        except json.JSONDecodeError:
-            pass
+    # Fallback: Extract key-value pairs using regex
+    # Looks for patterns like "key": "value" or 'key': 'value'
+    result = {}
     
-    # If all else fails, return empty dict
+    # Pattern to match JSON key-value pairs
+    patterns = [
+        r'["\'](\w+)["\']\s*:\s*["\']([^"\']*)["\']',  # Standard JSON
+        r'(\w+)\s*:\s*["\']([^"\']*)["\']',             # Unquoted keys
+        r'["\'](\w+)["\']\s*:\s*([^,}\]]+)',            # Values without quotes
+    ]
+    
+    for pattern in patterns:
+        matches = re.findall(pattern, text, re.DOTALL)
+        for key, value in matches:
+            if key and value:
+                result[key] = value.strip()
+    
+    # If we found any key-value pairs, return them
+    if result:
+        return result
+    
+    # Absolute fallback: return empty dict
     return {}
 
 @register_method("qa_expand")
