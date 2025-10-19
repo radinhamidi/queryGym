@@ -40,7 +40,8 @@ class LameR(BaseReformulator):
             q.text,
             reformulated,
             metadata={
-                "generated_passages": len(gen_passages),
+                "generated_passages": gen_passages,  # Store the actual passages
+                "generated_passages_count": len(gen_passages),
                 "used_ctx": len(prompt_ctxs),
             },
         )

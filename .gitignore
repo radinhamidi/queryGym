@@ -140,3 +140,6 @@ out/
 data/
 results/
 indices/
+datasets/
+query_expansion_results/
+dev_scripts/

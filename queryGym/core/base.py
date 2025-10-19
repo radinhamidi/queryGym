@@ -203,9 +203,24 @@ class BaseReformulator:
                 ctx_map = self.retrieve_contexts_batch(queries, retrieval_params)
         
         out: List[ReformulationResult] = []
-        for q in queries:
+        
+        # Import tqdm for progress bar
+        try:
+            from tqdm import tqdm
+            progress_bar = tqdm(queries, desc=f"Reformulating with {self.cfg.name}", unit="query")
+        except ImportError:
+            # Fallback if tqdm is not available
+            progress_bar = queries
+        
+        for q in progress_bar:
             ctx = (ctx_map or {}).get(q.qid)
-            out.append(self.reformulate(q, ctx))
+            result = self.reformulate(q, ctx)
+            out.append(result)
+            
+            # Update progress bar description with current query info
+            if hasattr(progress_bar, 'set_description'):
+                progress_bar.set_description(f"Reformulating with {self.cfg.name} (QID: {q.qid})")
+        
         return out
     
     def _get_retrieval_params(self) -> Optional[Dict[str, Any]]:
