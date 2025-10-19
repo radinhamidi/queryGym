@@ -29,6 +29,146 @@
       Recommend expansion terms that would improve search results for:
       "{query}"
 
+- id: genqr_ensemble.inst1.v1
+  method_family: genqr_ensemble
+  version: 1
+  introduced_by: "GenQR ensemble instruction variant 1"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["keywords", "expansion", "ensemble"]
+  template:
+    system: |
+      You output only comma-separated keywords. No sentences.
+    user: |
+      Improve the search effectiveness by suggesting expansion terms for the query:
+      "{query}"
+
+- id: genqr_ensemble.inst2.v1
+  method_family: genqr_ensemble
+  version: 1
+  introduced_by: "GenQR ensemble instruction variant 2"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["keywords", "expansion", "ensemble"]
+  template:
+    system: |
+      You output only comma-separated keywords. No sentences.
+    user: |
+      Recommend expansion terms for the query to improve search results:
+      "{query}"
+
+- id: genqr_ensemble.inst3.v1
+  method_family: genqr_ensemble
+  version: 1
+  introduced_by: "GenQR ensemble instruction variant 3"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["keywords", "expansion", "ensemble"]
+  template:
+    system: |
+      You output only comma-separated keywords. No sentences.
+    user: |
+      Improve the search effectiveness by suggesting useful expansion terms for the query:
+      "{query}"
+
+- id: genqr_ensemble.inst4.v1
+  method_family: genqr_ensemble
+  version: 1
+  introduced_by: "GenQR ensemble instruction variant 4"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["keywords", "expansion", "ensemble"]
+  template:
+    system: |
+      You output only comma-separated keywords. No sentences.
+    user: |
+      Maximize search utility by suggesting relevant expansion phrases for the query:
+      "{query}"
+
+- id: genqr_ensemble.inst5.v1
+  method_family: genqr_ensemble
+  version: 1
+  introduced_by: "GenQR ensemble instruction variant 5"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["keywords", "expansion", "ensemble"]
+  template:
+    system: |
+      You output only comma-separated keywords. No sentences.
+    user: |
+      Enhance search efficiency by proposing valuable terms to expand the query:
+      "{query}"
+
+- id: genqr_ensemble.inst6.v1
+  method_family: genqr_ensemble
+  version: 1
+  introduced_by: "GenQR ensemble instruction variant 6"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["keywords", "expansion", "ensemble"]
+  template:
+    system: |
+      You output only comma-separated keywords. No sentences.
+    user: |
+      Elevate search performance by recommending relevant expansion phrases for the query:
+      "{query}"
+
+- id: genqr_ensemble.inst7.v1
+  method_family: genqr_ensemble
+  version: 1
+  introduced_by: "GenQR ensemble instruction variant 7"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["keywords", "expansion", "ensemble"]
+  template:
+    system: |
+      You output only comma-separated keywords. No sentences.
+    user: |
+      Boost the search accuracy by providing helpful expansion terms to enrich the query:
+      "{query}"
+
+- id: genqr_ensemble.inst8.v1
+  method_family: genqr_ensemble
+  version: 1
+  introduced_by: "GenQR ensemble instruction variant 8"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["keywords", "expansion", "ensemble"]
+  template:
+    system: |
+      You output only comma-separated keywords. No sentences.
+    user: |
+      Increase the search efficacy by offering beneficial expansion keywords for the query:
+      "{query}"
+
+- id: genqr_ensemble.inst9.v1
+  method_family: genqr_ensemble
+  version: 1
+  introduced_by: "GenQR ensemble instruction variant 9"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["keywords", "expansion", "ensemble"]
+  template:
+    system: |
+      You output only comma-separated keywords. No sentences.
+    user: |
+      Optimize search results by suggesting meaningful expansion terms to enhance the query:
+      "{query}"
+
+- id: genqr_ensemble.inst10.v1
+  method_family: genqr_ensemble
+  version: 1
+  introduced_by: "GenQR ensemble instruction variant 10"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["keywords", "expansion", "ensemble"]
+  template:
+    system: |
+      You output only comma-separated keywords. No sentences.
+    user: |
+      Enhance search outcomes by recommending beneficial expansion terms to supplement the query:
+      "{query}"
+
 - id: query2doc.zeroshot.v1
   method_family: query2doc
   version: 1
