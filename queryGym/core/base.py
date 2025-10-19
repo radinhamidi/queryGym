@@ -1,6 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Any
+import argparse
 
 @dataclass
 class QueryItem:
@@ -68,17 +69,17 @@ class BaseReformulator:
         if strategy == "query_repeat_plus_generated":
             # Pattern: (Q × N) + generated_content
             # Used by: GenQR, GenQREnsemble, QA-Expand
-            return " ".join([original_query] * query_repeats + [generated_text])
+            result = " ".join([original_query] * query_repeats + [generated_text])
         
         elif strategy == "query_plus_generated":
             # Pattern: Q + generated_content (single repetition)
             # Used by: Query2E
-            return " ".join([original_query, generated_text])
+            result = " ".join([original_query, generated_text])
         
         elif strategy == "generated_only":
             # Pattern: Only generated content (no original query)
             # Used by: Query2Doc
-            return generated_text
+            result = generated_text
         
         elif strategy == "adaptive_query_repeat_plus_generated":
             # Pattern: (query + ' ') * repetition_times + generated_content
@@ -87,10 +88,7 @@ class BaseReformulator:
             adaptive_times = self.cfg.params.get("adaptive_times", 5)
             repetition_times = (len(generated_text) // len(original_query)) // adaptive_times
             repetition_times = max(1, repetition_times)  # At least 1 repetition
-            enhanced_query = (original_query + " ") * repetition_times + generated_text
-            # Normalize whitespace: remove any newline characters introduced by generation
-            enhanced_query = enhanced_query.replace('\n', ' ').replace('\r', ' ').strip()
-            return enhanced_query
+            result = (original_query + " ") * repetition_times + generated_text
         
         elif strategy == "interleaved_query_content":
             # Pattern: q + a1 + q + a2 + q + a3 + ... (interleaving)
@@ -100,28 +98,116 @@ class BaseReformulator:
                 for passage in generated_content:
                     expanded_parts.append(original_query)
                     expanded_parts.append(passage)
-                return " ".join(expanded_parts)
+                result = " ".join(expanded_parts)
             else:
                 # Single content: query + content
-                return " ".join([original_query, generated_text])
+                result = " ".join([original_query, generated_text])
         
         elif strategy == "generated_plus_query_repeat":
             # Pattern: generated_content + (Q × N)
             # Used by: Future methods that want generated content first
-            return " ".join([generated_text] + [original_query] * query_repeats)
+            result = " ".join([generated_text] + [original_query] * query_repeats)
         
         elif strategy == "query_sandwich":
             # Pattern: Q + generated_content + Q
             # Used by: Future methods that want query wrapping
-            return " ".join([original_query, generated_text, original_query])
+            result = " ".join([original_query, generated_text, original_query])
         
         else:
             # Default fallback to query_repeat_plus_generated pattern
-            return " ".join([original_query] * query_repeats + [generated_text])
+            result = " ".join([original_query] * query_repeats + [generated_text])
+        
+        # Clean up any newlines and quotes in the final result
+        result = result.replace('\n', ' ').replace('\r', ' ').strip()
+        # Remove quotes from beginning and end
+        result = result.strip('"').strip("'")
+        return result
+
+    def retrieve_contexts_batch(self, queries: List[QueryItem], retrieval_params: Optional[Dict[str, Any]] = None) -> Dict[str, List[str]]:
+        """Retrieve contexts for a batch of queries via BM25/Impact.
+        
+        Args:
+            queries: List of QueryItem objects to retrieve contexts for
+            retrieval_params: Method-specific retrieval parameters (index, k, rm3, rocchio, etc.)
+            
+        Returns:
+            Dictionary mapping query IDs to lists of context strings
+        """
+        if not retrieval_params or not queries:
+            return {}
+            
+        index = retrieval_params.get("index")
+        if not index:
+            return {}
+
+        # Build args for Retriever
+        args = argparse.Namespace(
+            index=index,
+            bm25=retrieval_params.get("bm25", True),
+            impact=retrieval_params.get("impact", False),
+            rm3=retrieval_params.get("rm3", False),
+            rocchio=retrieval_params.get("rocchio", False),
+            rocchio_use_negative=retrieval_params.get("rocchio_use_negative", False),
+            disable_bm25_param=retrieval_params.get("disable_bm25_param", True),
+            k1=retrieval_params.get("k1"),
+            b=retrieval_params.get("b"),
+            encoder=retrieval_params.get("encoder"),
+            min_idf=retrieval_params.get("min_idf", 0),
+            batch_size=retrieval_params.get("batch_size", 128),
+            threads=retrieval_params.get("threads", 16),
+            answer_key=retrieval_params.get("answer_key", "contents"),
+        )
+
+        # Lazy import to avoid hard dependency at load time
+        try:
+            from ..retrieve_context import Retriever  # type: ignore
+        except Exception:
+            return {}
+
+        retriever = Retriever(args)
+        k = retrieval_params.get("k", 10)  # Each method specifies its own k
+        
+        # Extract query texts and IDs
+        query_texts = [q.text for q in queries]
+        query_ids = [q.qid for q in queries]
+        
+        # Perform batch retrieval
+        batch_results = retriever.retrieve_batch(query_texts, k, args.threads)
+        
+        # Convert results to dictionary format
+        contexts = {}
+        for qid, results in zip(query_ids, batch_results):
+            # Extract only the text contents
+            contexts[qid] = [content for _docid, content in results]
+        
+        return contexts
+
+    def retrieve_contexts_if_needed(self, q: QueryItem, retrieval_params: Optional[Dict[str, Any]] = None) -> List[str]:
+        """Retrieve contexts for a single query (fallback method).
+        
+        Args:
+            q: QueryItem to retrieve contexts for
+            retrieval_params: Method-specific retrieval parameters
+            
+        Returns:
+            List of context strings
+        """
+        contexts = self.retrieve_contexts_batch([q], retrieval_params)
+        return contexts.get(q.qid, [])
 
     def reformulate_batch(self, queries: List[QueryItem], ctx_map: Optional[Dict[str, List[str]]] = None):
+        # If no contexts provided and method requires context, do batch retrieval
+        if ctx_map is None and hasattr(self, 'REQUIRES_CONTEXT') and self.REQUIRES_CONTEXT:
+            retrieval_params = self._get_retrieval_params()
+            if retrieval_params:
+                ctx_map = self.retrieve_contexts_batch(queries, retrieval_params)
+        
         out: List[ReformulationResult] = []
         for q in queries:
             ctx = (ctx_map or {}).get(q.qid)
             out.append(self.reformulate(q, ctx))
         return out
+    
+    def _get_retrieval_params(self) -> Optional[Dict[str, Any]]:
+        """Get retrieval parameters for this method. Override in subclasses."""
+        return None

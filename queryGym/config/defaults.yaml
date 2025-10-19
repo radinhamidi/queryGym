@@ -2,12 +2,22 @@ llm:
   model: "gpt-4o-mini"
   base_url: "${OPENAI_BASE_URL:-https://api.openai.com/v1}"
   api_key: "${OPENAI_API_KEY}"
-  temperature: 0.8
-  max_tokens: 256
+  temperature: 1.0
+  max_tokens: 128
 
 params:
   repeat_query_weight: 3
-  mode: "zs"
+  gen_passages: 5
+  index: "msmarco-v1-passage"
+  retrieval_k: 10
+  k1: 0.9
+  b: 0.4
+  rm3: false
+  rocchio: false
+  rocchio_use_negative: false
+  disable_bm25_param: true
+  batch_size: 128
+  threads: 16
 
 seed: 17
 retries: 2

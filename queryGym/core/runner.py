@@ -26,4 +26,4 @@ def run_method(method_name: str, cfg: MethodConfig, queries: List[QueryItem],
     llm = build_llm(cfg)
     pb = PromptBank(prompt_bank_path)
     reformulator = Method(cfg, llm, pb)
-    return reformulator.reformulate_batch(queries, ctx_map or {})
+    return reformulator.reformulate_batch(queries, ctx_map)
