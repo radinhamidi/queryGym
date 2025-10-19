@@ -6,8 +6,6 @@ import csv, json
 
 from ..core.base import QueryItem
 
-#TODO: Needs clarification. We need to define what datasets are available by default and through what channels.
-#TODO: We might need to move dataloader.py out of data folder and into main folder so that we can import it directoy from queryGym.
 Backend = Literal["local", "msmarco", "beir"]
 Source = Literal["file", "hf", "beir"]
 
