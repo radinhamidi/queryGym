@@ -7,7 +7,7 @@ from .core.base import MethodConfig
 from .core.runner import run_method
 from .core.prompts import PromptBank
 from .data.dataloader import UnifiedQuerySource
-app = typer.Typer(help="QueryReform Toolkit CLI")
+app = typer.Typer(help="queryGym Toolkit CLI")
 
 def build_script_lines(index_path:str, topics:str, run:str, qrels:Optional[str]=None,
                        bm25:bool=True, extra:str="") -> list[str]:

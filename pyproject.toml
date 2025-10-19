@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "queryreform"
+name = "queryGym"
 version = "0.1.0"
 description = "LLM-based Query Reformulation Toolkit"
 readme = "README.md"
@@ -22,4 +22,4 @@ beir = ["beir>=2.0.0"]
 dev = ["pytest>=7.4.0"]
 
 [project.scripts]
-queryreform = "queryreform.cli:app"
+queryGym = "queryGym.cli:app"

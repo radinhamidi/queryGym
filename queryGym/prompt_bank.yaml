@@ -3,7 +3,7 @@
   version: 1
   introduced_by: "Generic keywords prompt (baseline)"
   license: "CC-BY-4.0"
-  authors: ["QueryReform Team"]
+  authors: ["queryGym Team"]
   tags: ["keywords", "expansion"]
   template:
     system: |
@@ -20,7 +20,7 @@
   version: 1
   introduced_by: "Variant phrasing"
   license: "CC-BY-4.0"
-  authors: ["QueryReform Team"]
+  authors: ["queryGym Team"]
   tags: ["keywords", "expansion"]
   template:
     system: |
@@ -34,7 +34,7 @@
   version: 1
   introduced_by: "Nogueira et al., 2019 style pseudo-doc"
   license: "CC-BY-4.0"
-  authors: ["QueryReform Team"]
+  authors: ["queryGym Team"]
   tags: ["pseudo-document", "zs"]
   template:
     system: |
@@ -48,7 +48,7 @@
   version: 1
   introduced_by: "Chain-of-thought pseudo-doc"
   license: "CC-BY-4.0"
-  authors: ["QueryReform Team"]
+  authors: ["queryGym Team"]
   tags: ["pseudo-document", "cot"]
   template:
     system: |
@@ -62,7 +62,7 @@
   version: 1
   introduced_by: "Sub-question generator"
   license: "CC-BY-4.0"
-  authors: ["QueryReform Team"]
+  authors: ["queryGym Team"]
   tags: ["qa", "decomposition"]
   template:
     system: |
@@ -75,7 +75,7 @@
   version: 1
   introduced_by: "Answer with given contexts"
   license: "CC-BY-4.0"
-  authors: ["QueryReform Team"]
+  authors: ["queryGym Team"]
   tags: ["qa"]
   template:
     system: |
@@ -91,7 +91,7 @@
   version: 1
   introduced_by: "Refine final reformulation"
   license: "CC-BY-4.0"
-  authors: ["QueryReform Team"]
+  authors: ["queryGym Team"]
   tags: ["refinement"]
   template:
     system: |

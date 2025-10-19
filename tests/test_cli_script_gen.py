@@ -1,4 +1,4 @@
-from queryreform.cli import build_script_lines
+from queryGym.cli import build_script_lines
 
 def test_script_lines():
     lines = build_script_lines(index_path="/idx", topics="/q.tsv", run="/run.txt", qrels="/qrels.txt")

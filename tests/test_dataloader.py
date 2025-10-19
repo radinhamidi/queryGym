@@ -1,4 +1,4 @@
-from queryreform.data.dataloader import UnifiedQuerySource
+from queryGym.data.dataloader import UnifiedQuerySource
 from pathlib import Path
 import tempfile
 

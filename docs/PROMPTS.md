@@ -1,6 +1,6 @@
 # Prompt Bank
 
-Single YAML file: `queryreform/prompt_bank.yaml`
+Single YAML file: `queryGym/prompt_bank.yaml`
 
 Each entry:
 - `id`: Unique string (e.g., `genqr.keywords.v1`)

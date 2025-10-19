@@ -1,4 +1,4 @@
-# QueryReform
+# queryGym
 
 A lightweight, reproducible toolkit for **LLM-based query reformulation**.
 
@@ -15,8 +15,8 @@ pip install -e .[hf,beir,dev]
 export OPENAI_API_KEY=sk-...
 
 # Convert dataset → standard TSV (choose one)
-queryreform data-to-tsv --backend msMarco --source file   --msmarco-queries-tsv /data/msmarco/queries.dev.small.tsv   --out out/msmarco.dev.tsv
+queryGym data-to-tsv --backend msMarco --source file   --msmarco-queries-tsv /data/msmarco/queries.dev.small.tsv   --out out/msmarco.dev.tsv
 
 # Run a method (e.g., genqr_ensemble)
-queryreform run --method genqr_ensemble   --queries-tsv out/msmarco.dev.tsv   --output-tsv out/genqr_ens.tsv   --cfg-path queryreform/config/defaults.yaml
+queryGym run --method genqr_ensemble   --queries-tsv out/msmarco.dev.tsv   --output-tsv out/genqr_ens.tsv   --cfg-path queryGym/config/defaults.yaml
 ```
