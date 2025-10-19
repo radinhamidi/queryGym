@@ -6,8 +6,10 @@ import csv, json
 
 from ..core.base import QueryItem
 
-#TODO: Needs clarification. We need to define what datasets are available by default and through what channels.
-#TODO: We might need to move dataloader.py out of data folder and into main folder so that we can import it directoy from queryGym.
+'''
+TODO: We are going to remove support for datasets in here. Users must load queries, qrels and context and pass it to queryGym function.
+Dataloader will only be responsible for loading files, if it is not passed as argument.
+'''
 Backend = Literal["local", "msmarco", "beir"]
 Source = Literal["file", "hf", "beir"]
 
