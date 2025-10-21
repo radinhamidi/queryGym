@@ -143,3 +143,9 @@ indices/
 datasets/
 query_expansion_results/
 dev_scripts/
+quick_independence_test.py
+test_adapters.py
+test_independence.py
+test_retriever_fix.py
+test_searcher_implementation.py
+test_standalone_final.py

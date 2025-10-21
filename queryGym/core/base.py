@@ -124,11 +124,11 @@ class BaseReformulator:
         return result
 
     def retrieve_contexts_batch(self, queries: List[QueryItem], retrieval_params: Optional[Dict[str, Any]] = None) -> Dict[str, List[str]]:
-        """Retrieve contexts for a batch of queries via BM25/Impact.
+        """Retrieve contexts for a batch of queries via any searcher implementing BaseSearcher.
         
         Args:
             queries: List of QueryItem objects to retrieve contexts for
-            retrieval_params: Method-specific retrieval parameters (index, k, rm3, rocchio, etc.)
+            retrieval_params: Method-specific retrieval parameters (searcher_type, searcher_kwargs, k, etc.)
             
         Returns:
             Dictionary mapping query IDs to lists of context strings
@@ -136,43 +136,32 @@ class BaseReformulator:
         if not retrieval_params or not queries:
             return {}
             
-        index = retrieval_params.get("index")
-        if not index:
-            return {}
-
-        # Build args for Retriever
-        args = argparse.Namespace(
-            index=index,
-            bm25=retrieval_params.get("bm25", True),
-            impact=retrieval_params.get("impact", False),
-            rm3=retrieval_params.get("rm3", False),
-            rocchio=retrieval_params.get("rocchio", False),
-            rocchio_use_negative=retrieval_params.get("rocchio_use_negative", False),
-            disable_bm25_param=retrieval_params.get("disable_bm25_param", True),
-            k1=retrieval_params.get("k1"),
-            b=retrieval_params.get("b"),
-            encoder=retrieval_params.get("encoder"),
-            min_idf=retrieval_params.get("min_idf", 0),
-            batch_size=retrieval_params.get("batch_size", 128),
-            threads=retrieval_params.get("threads", 16),
-            answer_key=retrieval_params.get("answer_key", "contents"),
-        )
+        # Extract searcher configuration
+        searcher_type = retrieval_params.get("searcher_type", "pyserini")
+        searcher_kwargs = retrieval_params.get("searcher_kwargs", {})
+        k = retrieval_params.get("k", 10)
+        threads = retrieval_params.get("threads", 16)
+        answer_key = retrieval_params.get("answer_key", "contents")
 
         # Lazy import to avoid hard dependency at load time
         try:
-            from ..retrieve_context import Retriever  # type: ignore
+            from .retriever import Retriever  # type: ignore
         except Exception:
             return {}
 
-        retriever = Retriever(args)
-        k = retrieval_params.get("k", 10)  # Each method specifies its own k
+        # Create retriever with searcher configuration
+        retriever = Retriever(
+            searcher_type=searcher_type,
+            searcher_kwargs=searcher_kwargs,
+            answer_key=answer_key
+        )
         
         # Extract query texts and IDs
         query_texts = [q.text for q in queries]
         query_ids = [q.qid for q in queries]
         
         # Perform batch retrieval
-        batch_results = retriever.retrieve_batch(query_texts, k, args.threads)
+        batch_results = retriever.retrieve_batch(query_texts, k, threads)
         
         # Convert results to dictionary format
         contexts = {}

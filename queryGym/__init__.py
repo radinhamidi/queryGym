@@ -20,6 +20,12 @@ from .core.base import QueryItem, ReformulationResult, MethodConfig, BaseReformu
 from .core.llm import OpenAICompatibleClient
 from .core.prompts import PromptBank
 
+# Searcher interface
+from .core.searcher import BaseSearcher, SearchHit, SearcherRegistry, create_searcher
+
+# Searcher wrappers for user convenience
+from .core.searcher_wrappers import wrap_pyserini_searcher, wrap_pyterrier_retriever, wrap_custom_searcher
+
 # Data loaders
 from .data.dataloader import UnifiedQuerySource
 
@@ -37,6 +43,10 @@ from .methods import (
 # High-level runner
 from .core.runner import run_method, build_llm
 from .core.registry import METHODS, register_method
+
+
+# Import adapters to register them
+from . import adapters
 
 # Convenience factory function
 def create_reformulator(
@@ -139,6 +149,17 @@ __all__ = [
     "OpenAICompatibleClient",
     "PromptBank",
     
+    # Searcher interface
+    "BaseSearcher",
+    "SearchHit",
+    "SearcherRegistry",
+    "create_searcher",
+    
+    # Searcher wrappers
+    "wrap_pyserini_searcher",
+    "wrap_pyterrier_retriever", 
+    "wrap_custom_searcher",
+    
     # Data
     "UnifiedQuerySource",
     
@@ -156,6 +177,9 @@ __all__ = [
     "build_llm",
     "create_reformulator",
     "load_queries",
+    
+    # Retrieval
+    "Retriever",
     
     # Registry
     "METHODS",
