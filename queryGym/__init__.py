@@ -27,7 +27,10 @@ from .core.searcher import BaseSearcher, SearchHit, SearcherRegistry, create_sea
 from .core.searcher_wrappers import wrap_pyserini_searcher, wrap_pyterrier_retriever, wrap_custom_searcher
 
 # Data loaders
-from .data.dataloader import UnifiedQuerySource
+from .data.dataloader import DataLoader, UnifiedQuerySource
+
+# Format-specific loaders
+from . import loaders
 
 # All reformulation methods
 from .methods import (
@@ -117,22 +120,58 @@ def create_reformulator(
     return MethodClass(config, llm, pb)
 
 
-def load_queries(source: str, **kwargs):
+def load_queries(path: str, format: str = "tsv", **kwargs):
     """
-    Load queries from various sources.
+    Load queries from a local file.
     
     Args:
-        source: "local", "msmarco", or "beir"
-        **kwargs: Source-specific parameters (path, format, etc.)
+        path: Path to queries file
+        format: File format - "tsv" or "jsonl" (default: "tsv")
+        **kwargs: Additional parameters for DataLoader.load_queries()
     
     Returns:
         List of QueryItem objects
     
     Example:
-        >>> queries = qg.load_queries("local", path="queries.tsv", format="tsv")
+        >>> queries = qg.load_queries("queries.tsv", format="tsv")
+        >>> queries = qg.load_queries("queries.jsonl", format="jsonl")
     """
-    src = UnifiedQuerySource(backend=source, **kwargs)
-    return list(src.iter())
+    return DataLoader.load_queries(path, format=format, **kwargs)
+
+
+def load_qrels(path: str, format: str = "trec", **kwargs):
+    """
+    Load qrels from a local file.
+    
+    Args:
+        path: Path to qrels file
+        format: File format - "trec" (default: "trec")
+        **kwargs: Additional parameters for DataLoader.load_qrels()
+    
+    Returns:
+        Dict mapping qid -> {docid -> relevance}
+    
+    Example:
+        >>> qrels = qg.load_qrels("qrels.txt")
+    """
+    return DataLoader.load_qrels(path, format=format, **kwargs)
+
+
+def load_contexts(path: str, **kwargs):
+    """
+    Load contexts from a JSONL file.
+    
+    Args:
+        path: Path to contexts JSONL file
+        **kwargs: Additional parameters for DataLoader.load_contexts()
+    
+    Returns:
+        Dict mapping qid -> list of context strings
+    
+    Example:
+        >>> contexts = qg.load_contexts("contexts.jsonl")
+    """
+    return DataLoader.load_contexts(path, **kwargs)
 
 
 __all__ = [
@@ -161,7 +200,9 @@ __all__ = [
     "wrap_custom_searcher",
     
     # Data
-    "UnifiedQuerySource",
+    "DataLoader",
+    "UnifiedQuerySource",  # Deprecated
+    "loaders",
     
     # Methods
     "GENQR",
@@ -177,6 +218,8 @@ __all__ = [
     "build_llm",
     "create_reformulator",
     "load_queries",
+    "load_qrels",
+    "load_contexts",
     
     # Retrieval
     "Retriever",
