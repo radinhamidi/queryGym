@@ -14,7 +14,7 @@ datasets:
     topics:
       name: "msmarco-v1-passage.dev"
     qrels:
-      name: "qrels.msmarco-v1-passage.dev.txt"  # placeholder
+      name: "qrels.msmarco-v1-passage.dev.txt"  
     bm25_weights:
       k1: 0.9
       b: 0.4
@@ -29,7 +29,7 @@ datasets:
     topics:
       name: "dl19-passage"
     qrels:
-      name: "qrels.dl19-passage.txt"  # placeholder
+      name: "qrels.dl19-passage.txt" 
     bm25_weights:
       k1: 0.9
       b: 0.4
@@ -44,7 +44,7 @@ datasets:
     topics:
       name: "dl20-passage"
     qrels:
-      name: "qrels.dl20-passage.txt"  # placeholder
+      name: "qrels.dl20-passage.txt" 
     bm25_weights:
       k1: 0.9
       b: 0.4
