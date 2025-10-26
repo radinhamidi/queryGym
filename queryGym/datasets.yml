@@ -20,7 +20,7 @@ datasets:
       b: 0.4
     output:
       runfile_template: "run.msmarco-v1-passage.bm25-default.dev.txt"
-      eval_metrics: ["map", "P.10", "ndcg_cut.10", "recall.1000"]
+      eval_metrics: ["recip_rank", "recall.1000"]
 
   msmarco-v1-passage.trecdl2019:
     name: "TREC Deep Learning 2019 — Passage"
@@ -35,7 +35,7 @@ datasets:
       b: 0.4
     output:
       runfile_template: "run.msmarco-v1-passage.bm25-default.dl19.txt"
-      eval_metrics: ["map", "P.10", "ndcg_cut.10", "recall.1000"]
+      eval_metrics: ["map", "ndcg_cut.10", "recall.1000"]
 
   msmarco-v1-passage.trecdl2020:
     name: "TREC Deep Learning 2020 — Passage"
@@ -50,7 +50,7 @@ datasets:
       b: 0.4
     output:
       runfile_template: "run.msmarco-v1-passage.bm25-default.dl20.txt"
-      eval_metrics: ["map", "P.10", "ndcg_cut.10", "recall.1000"]
+      eval_metrics: ["map", "ndcg_cut.10", "recall.1000"]
 
 ################### BEIR Datasets ########################
 
