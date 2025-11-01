@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Any
-import argparse
+from tqdm import tqdm
 
 @dataclass
 class QueryItem:
@@ -126,48 +126,93 @@ class BaseReformulator:
     def retrieve_contexts_batch(self, queries: List[QueryItem], retrieval_params: Optional[Dict[str, Any]] = None) -> Dict[str, List[str]]:
         """Retrieve contexts for a batch of queries via any searcher implementing BaseSearcher.
         
+        This method supports both searcher adapters (via registry) and wrapped searchers:
+        
+        **Using Adapters (via searcher_type):**
+            retrieval_params = {
+                "searcher_type": "pyserini",  # or "pyterrier"
+                "searcher_kwargs": {"index": "msmarco-v1-passage", ...},
+                "k": 10,
+                "threads": 16,
+            }
+        
+        **Using Wrapped Searchers:**
+            # Wrap your existing searcher
+            from pyserini.search.lucene import LuceneSearcher
+            my_searcher = LuceneSearcher.from_prebuilt_index('msmarco-v1-passage')
+            wrapped = wrap_pyserini_searcher(my_searcher)
+            
+            retrieval_params = {
+                "searcher": wrapped,  # Pass wrapped searcher directly
+                "k": 10,
+                "threads": 16,
+            }
+        
+        **Using Adapter Instances Directly:**
+            from queryGym import create_searcher
+            searcher = create_searcher("pyserini", index="msmarco-v1-passage")
+            
+            retrieval_params = {
+                "searcher": searcher,  # Pass adapter instance directly
+                "k": 10,
+            }
+        
         Args:
             queries: List of QueryItem objects to retrieve contexts for
-            retrieval_params: Method-specific retrieval parameters (searcher_type, searcher_kwargs, k, etc.)
+            retrieval_params: Method-specific retrieval parameters. Can include:
+                - searcher: Pre-existing BaseSearcher instance (wrappers, adapters, or custom)
+                - searcher_type: Type of searcher to create via registry ("pyserini", "pyterrier", etc.)
+                - searcher_kwargs: Keyword arguments to pass to searcher constructor
+                - k: Number of documents to retrieve per query (default: 10)
+                - threads: Number of threads for batch search (default: 16)
             
         Returns:
             Dictionary mapping query IDs to lists of context strings
         """
         if not retrieval_params or not queries:
             return {}
-            
-        # Extract searcher configuration
-        searcher_type = retrieval_params.get("searcher_type", "pyserini")
-        searcher_kwargs = retrieval_params.get("searcher_kwargs", {})
+        
+        # Extract retrieval configuration
         k = retrieval_params.get("k", 10)
         threads = retrieval_params.get("threads", 16)
-        answer_key = retrieval_params.get("answer_key", "contents")
-
-        # Lazy import to avoid hard dependency at load time
-        try:
-            from .retriever import Retriever  # type: ignore
-        except Exception:
-            return {}
-
-        # Create retriever with searcher configuration
-        retriever = Retriever(
-            searcher_type=searcher_type,
-            searcher_kwargs=searcher_kwargs,
-            answer_key=answer_key
-        )
+        
+        # Get or create searcher
+        searcher = retrieval_params.get("searcher")
+        
+        if searcher is None:
+            # Create searcher using registry
+            searcher_type = retrieval_params.get("searcher_type", "pyserini")
+            searcher_kwargs = retrieval_params.get("searcher_kwargs", {})
+            
+            # Lazy import to avoid hard dependency at load time
+            try:
+                from .searcher import create_searcher
+                searcher = create_searcher(searcher_type, **searcher_kwargs)
+            except Exception as e:
+                # If searcher creation fails, return empty dict
+                # This allows methods to work without retrieval if contexts are pre-provided
+                return {}
+        
+        # Ensure searcher implements BaseSearcher interface
+        from .searcher import BaseSearcher
+        if not isinstance(searcher, BaseSearcher):
+            raise ValueError(
+                f"Searcher must implement BaseSearcher interface. "
+                f"Got type: {type(searcher)}"
+            )
         
         # Extract query texts and IDs
         query_texts = [q.text for q in queries]
         query_ids = [q.qid for q in queries]
         
-        # Perform batch retrieval
-        batch_results = retriever.retrieve_batch(query_texts, k, threads)
+        # Perform batch retrieval using searcher's batch_search method
+        batch_results = searcher.batch_search(query_texts, k=k, num_threads=threads)
         
-        # Convert results to dictionary format
+        # Convert SearchHit results to dictionary format (qid -> list of context strings)
         contexts = {}
-        for qid, results in zip(query_ids, batch_results):
-            # Extract only the text contents
-            contexts[qid] = [content for _docid, content in results]
+        for qid, search_hits in zip(query_ids, batch_results):
+            # Extract content from each SearchHit
+            contexts[qid] = [hit.content for hit in search_hits]
         
         return contexts
 
@@ -195,7 +240,6 @@ class BaseReformulator:
         
         # Import tqdm for progress bar
         try:
-            from tqdm import tqdm
             progress_bar = tqdm(queries, desc=f"Reformulating with {self.cfg.name}", unit="query")
         except ImportError:
             # Fallback if tqdm is not available
