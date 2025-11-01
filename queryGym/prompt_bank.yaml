@@ -197,6 +197,24 @@
       Think step-by-step about the information need for: "{query}"
       Then write a 3-5 sentence passage that would be highly relevant.
 
+- id: query2doc.fewshot.v1
+  method_family: query2doc
+  version: 1
+  introduced_by: "MS MARCO few-shot pseudo-doc generation"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["pseudo-document", "fewshot", "msmarco"]
+  template:
+    system: |
+      You are a helpful assistant that generates informative passages to answer queries.
+    user: |
+      Write a passage that answers the given query: 
+      
+      {examples}Query: {query}
+      Passage:
+  notes: |
+    Few-shot prompt using MS MARCO training examples. The {examples} variable should contain formatted query-passage pairs.
+
 - id: qa_expand.subq.v1
   method_family: qa_expand
   version: 1

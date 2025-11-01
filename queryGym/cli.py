@@ -40,6 +40,7 @@ def run(method: str = typer.Option(...),
         prompt_bank: Path = typer.Option(Path(__file__).with_name("prompt_bank.yaml"), "--prompt-bank"),
         ctx_jsonl: Optional[Path] = typer.Option(None, "--ctx-jsonl", help="Optional contexts JSONL"),
         output_format: str = typer.Option("both", "--output-format", help="Output format: 'concat', 'plain', or 'both' (default: both)"),
+        parallel: Optional[bool] = typer.Option(None, "--parallel", help="Enable parallel generation for methods like MuGI"),
 ):
     import yaml
     import os
@@ -63,7 +64,13 @@ def run(method: str = typer.Option(...),
         cfg = yaml.safe_load(expanded_content)
     else:
         cfg = {}
-    mc = MethodConfig(name=method, params=cfg.get("params",{}), llm=cfg["llm"],
+    
+    # Override parallel flag if provided via CLI
+    params = cfg.get("params", {})
+    if parallel is not None:
+        params["parallel"] = parallel
+    
+    mc = MethodConfig(name=method, params=params, llm=cfg["llm"],
                       seed=cfg.get("seed",42), retries=cfg.get("retries",2))
     src = UnifiedQuerySource(backend="local", format="tsv", path=queries_tsv)
     queries = list(src.iter())
@@ -199,9 +206,15 @@ def run(method: str = typer.Option(...),
                     cleaned_final_q = clean_text(final_q)
                     w.writerow([r.qid, cleaned_final_q])
                 elif method == "mugi":
-                    # MuGI: qid \t pseudo_document
-                    pseudo = r.metadata.get("pseudo", "")
-                    cleaned_pseudo = clean_text(pseudo)
+                    # MuGI: qid \t pseudo_document (all 5 joined)
+                    pseudo_docs = []
+                    for i in range(1, 6):
+                        doc = r.metadata.get(f"pseudo_doc_{i}", "")
+                        if doc:
+                            pseudo_docs.append(doc)
+                    # Join all pseudo-docs into single text
+                    all_pseudo = " ".join(pseudo_docs)
+                    cleaned_pseudo = clean_text(all_pseudo)
                     w.writerow([r.qid, cleaned_pseudo])
                 elif method == "genqr_ensemble":
                     # GenQREnsemble: qid \t keyword_1 \t keyword_2 \t ... \t keyword_n
