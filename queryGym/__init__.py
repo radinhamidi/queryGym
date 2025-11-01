@@ -41,6 +41,7 @@ from .methods import (
     MuGI,
     LameR,
     Query2E,
+    CSQE,
 )
 
 # High-level runner
@@ -212,6 +213,7 @@ __all__ = [
     "MuGI",
     "LameR",
     "Query2E",
+    "CSQE",
     
     # High-level API
     "run_method",

@@ -117,7 +117,7 @@ class BaseReformulator:
             # Default fallback to query_repeat_plus_generated pattern
             result = " ".join([original_query] * query_repeats + [generated_text])
         
-        # Clean up any newlines and quotes in the final result
+        # Clean up any newlines and quotes in the final result (for non-newline strategies)
         result = result.replace('\n', ' ').replace('\r', ' ').strip()
         # Remove quotes from beginning and end
         result = result.strip('"').strip("'")
