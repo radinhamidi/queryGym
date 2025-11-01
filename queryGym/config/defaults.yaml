@@ -18,5 +18,23 @@ params:
   threads: 16
   parallel: false  # Enable parallel generation for methods like MuGI
 
+# Method-specific default parameters
+genqr_ensemble:
+  llm:
+    temperature: 0.92  # Nucleus sampling (GenQREnsemble paper)
+    max_tokens: 256
+  params:
+    parallel: false  # Sequential generation by default (set true for parallel)
+
+mugi:
+  llm:
+    temperature: 1.0  # High temperature for diversity (MuGI paper)
+    max_tokens: 1024
+  params:
+    num_docs: 5  # Number of pseudo-documents to generate
+    adaptive_times: 5  # Adaptive query repetition factor
+    parallel: false  # Sequential generation by default (set true for parallel)
+    mode: "zs"  # "zs" (zero-shot) or "fs" (few-shot)
+
 seed: 17
 retries: 2

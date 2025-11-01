@@ -30,8 +30,8 @@ class MuGI(BaseReformulator):
 
     def reformulate(self, q: QueryItem, contexts=None) -> ReformulationResult:
         # Get configurable parameters from config
-        num_docs = 5
-        adaptive_times = 5
+        num_docs = int(self.cfg.params.get("num_docs", 5))
+        adaptive_times = int(self.cfg.params.get("adaptive_times", 5))
         max_tokens = int(self.cfg.params.get("max_tokens", self.cfg.llm.get("max_tokens", 1024)))
         temperature = float(self.cfg.params.get("temperature", self.cfg.llm.get("temperature", 1.0)))
         parallel = bool(self.cfg.params.get("parallel", False))
