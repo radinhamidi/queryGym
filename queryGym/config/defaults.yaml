@@ -19,6 +19,13 @@ params:
   parallel: false  # Enable parallel generation for methods like MuGI
 
 # Method-specific default parameters
+genqr:
+  llm:
+    temperature: 0.8
+    max_tokens: 256
+  params:
+    n_generations: 5  # Number of times to call LLM for keywords
+
 genqr_ensemble:
   llm:
     temperature: 0.92  # Nucleus sampling (GenQREnsemble paper)

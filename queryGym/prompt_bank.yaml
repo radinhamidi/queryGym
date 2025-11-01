@@ -15,20 +15,6 @@
   notes: |
     Minimal keyword expansion; consumers split by comma.
 
-- id: genqr.keywords.variant.v1
-  method_family: genqr
-  version: 1
-  introduced_by: "Variant phrasing"
-  license: "CC-BY-4.0"
-  authors: ["queryGym Team"]
-  tags: ["keywords", "expansion"]
-  template:
-    system: |
-      Produce a short list of expansion terms, comma-separated.
-    user: |
-      Recommend expansion terms that would improve search results for:
-      "{query}"
-
 - id: genqr_ensemble.inst1.v1
   method_family: genqr_ensemble
   version: 1
