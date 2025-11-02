@@ -125,18 +125,18 @@ def run(method: str = typer.Option(...),
                 # Query2Doc: qid \t passage
                 w.writerow(["qid", "passage"])
             elif method == "genqr":
-                # GenQR: qid \t keyword_1 \t keyword_2 \t ... \t keyword_n
-                # Determine number of keywords from first result
+                # GenQR: qid \t reformulation_1 \t reformulation_2 \t ... \t reformulation_n
+                # Determine number of reformulations from first result
                 if results:
-                    keywords = results[0].metadata.get("keywords", [])
-                    if isinstance(keywords, list) and keywords:
-                        num_keywords = len(keywords)
+                    reformulations = results[0].metadata.get("reformulations", [])
+                    if isinstance(reformulations, list) and reformulations:
+                        num_reformulations = len(reformulations)
                     else:
-                        num_keywords = 10  # Default estimate
-                    header = ["qid"] + [f"keyword_{i+1}" for i in range(num_keywords)]
+                        num_reformulations = 5  # Default estimate
+                    header = ["qid"] + [f"reformulation_{i+1}" for i in range(num_reformulations)]
                     w.writerow(header)
                 else:
-                    w.writerow(["qid", "keyword_1", "keyword_2", "keyword_3", "keyword_4", "keyword_5"])
+                    w.writerow(["qid", "reformulation_1", "reformulation_2", "reformulation_3", "reformulation_4", "reformulation_5"])
             elif method == "qa_expand":
                 # QA-Expand: qid \t final_refined_query
                 w.writerow(["qid", "refined_query"])
@@ -196,14 +196,14 @@ def run(method: str = typer.Option(...),
                     cleaned_passage = clean_text(passage)
                     w.writerow([r.qid, cleaned_passage])
                 elif method == "genqr":
-                    # GenQR: qid \t keywords
-                    keywords = r.metadata.get("keywords", [])
-                    if isinstance(keywords, list):
-                        cleaned_keywords = [clean_text(k) for k in keywords]
-                        w.writerow([r.qid] + cleaned_keywords)
+                    # GenQR: qid \t reformulations
+                    reformulations = r.metadata.get("reformulations", [])
+                    if isinstance(reformulations, list):
+                        cleaned_reformulations = [clean_text(k) for k in reformulations]
+                        w.writerow([r.qid] + cleaned_reformulations)
                     else:
-                        cleaned_keywords = clean_text(keywords)
-                        w.writerow([r.qid, cleaned_keywords])
+                        cleaned_reformulations = clean_text(reformulations)
+                        w.writerow([r.qid, cleaned_reformulations])
                 elif method == "qa_expand":
                     # QA-Expand: qid \t final_refined_query
                     final_q = r.metadata.get("final_q", "")

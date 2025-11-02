@@ -1,19 +1,19 @@
-- id: genqr.keywords.v1
+- id: genqr.v1
   method_family: genqr
   version: 1
-  introduced_by: "Generic keywords prompt (baseline)"
+  introduced_by: "Generic reformulation prompt (baseline)"
   license: "CC-BY-4.0"
   authors: ["queryGym Team"]
   tags: ["keywords", "expansion"]
   template:
     system: |
-      You output only comma-separated keywords. No sentences.
+      You output only reformulated query. Nothing else.
     user: |
-      Suggest keywords to improve retrieval for this query:
+      Reformulate this query:
       "{query}"
-      Return only keywords.
+      Reformulation:
   notes: |
-    Minimal keyword expansion; consumers split by comma.
+    Minimal query reformulation
 
 - id: q2e.zs.v1
   method_family: query_to_expansion
