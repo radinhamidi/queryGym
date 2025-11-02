@@ -24,10 +24,12 @@ class Query2E(BaseReformulator):
         max_tokens = int(self.cfg.llm.get("max_tokens", 256))
         
         # Select prompt based on mode
-        if mode == "fs" or mode == "fewshot":
+        if mode in ["fs", "fewshot"]:
             prompt_id = "q2e.fs.v1"
-        else:
+        elif mode in ["zs", "zeroshot"]:
             prompt_id = "q2e.zs.v1"
+        else:
+            raise ValueError(f"Invalid mode '{mode}' for Query2E. Must be 'zs' (zero-shot) or 'fs' (few-shot).")
         
         # Generate keywords
         msgs = self.prompts.render(prompt_id, query=q.text)

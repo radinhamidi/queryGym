@@ -31,7 +31,7 @@ class MuGI(BaseReformulator):
     def reformulate(self, q: QueryItem, contexts=None) -> ReformulationResult:
         # Get configurable parameters from config
         num_docs = int(self.cfg.params.get("num_docs", 5))
-        adaptive_times = int(self.cfg.params.get("adaptive_times", 5))
+        adaptive_times = int(self.cfg.params.get("adaptive_times", 6))
         max_tokens = int(self.cfg.params.get("max_tokens", self.cfg.llm.get("max_tokens", 1024)))
         temperature = float(self.cfg.params.get("temperature", self.cfg.llm.get("temperature", 1.0)))
         parallel = bool(self.cfg.params.get("parallel", False))
@@ -45,10 +45,12 @@ class MuGI(BaseReformulator):
             prompt_id = str(self.cfg.params.get("prompt_id"))
         else:
             # Simple: use mode to select prompt
-            if mode == "fs" or mode == "fewshot":
+            if mode in ["fs", "fewshot"]:
                 prompt_id = "mugi.fewshot.v1"
-            else:  # default to zero-shot
+            elif mode in ["zs", "zeroshot"]:
                 prompt_id = "mugi.zeroshot.v1"
+            else:
+                raise ValueError(f"Invalid mode '{mode}' for MuGI. Must be 'zs' (zero-shot) or 'fs' (few-shot).")
         
         # Generate multiple pseudo-documents for diversity and coverage
         pseudo_docs: List[str] = []
