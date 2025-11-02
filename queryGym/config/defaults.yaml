@@ -33,6 +33,14 @@ query2e:
   params:
     mode: "fs"  # "zs" (zero-shot) or "fs" (few-shot with 20 examples)
 
+query2doc:
+  llm:
+    temperature: 0.7
+    max_tokens: 256
+  params:
+    mode: "zs"  # "zs" (zero-shot), "cot" (chain-of-thought), or "fs" (few-shot)
+    num_examples: 4  # Number of few-shot examples (only used when mode="fs")
+
 qa_expand:
   llm:
     temperature: 0.8

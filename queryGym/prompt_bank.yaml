@@ -60,7 +60,7 @@
   tags: ["keywords", "expansion", "ensemble"]
   template:
     system: |
-      You output only comma-separated keywords. No sentences.
+      You are a helpful assistant who directly provides comma-separated keywords or expansion terms. Provide as many expansion terms or keywords as possible related to query.
     user: |
       Improve the search effectiveness by suggesting expansion terms for the query:
       "{query}"
@@ -74,7 +74,7 @@
   tags: ["keywords", "expansion", "ensemble"]
   template:
     system: |
-      You output only comma-separated keywords. No sentences.
+      You are a helpful assistant who directly provides comma-separated keywords or expansion terms. Provide as many expansion terms or keywords as possible related to query.
     user: |
       Recommend expansion terms for the query to improve search results:
       "{query}"
@@ -88,7 +88,7 @@
   tags: ["keywords", "expansion", "ensemble"]
   template:
     system: |
-      You output only comma-separated keywords. No sentences.
+      You are a helpful assistant who directly provides comma-separated keywords or expansion terms. Provide as many expansion terms or keywords as possible related to query.
     user: |
       Improve the search effectiveness by suggesting useful expansion terms for the query:
       "{query}"
@@ -102,7 +102,7 @@
   tags: ["keywords", "expansion", "ensemble"]
   template:
     system: |
-      You output only comma-separated keywords. No sentences.
+      You are a helpful assistant who directly provides comma-separated keywords or expansion terms. Provide as many expansion terms or keywords as possible related to query.
     user: |
       Maximize search utility by suggesting relevant expansion phrases for the query:
       "{query}"
@@ -116,7 +116,7 @@
   tags: ["keywords", "expansion", "ensemble"]
   template:
     system: |
-      You output only comma-separated keywords. No sentences.
+      You are a helpful assistant who directly provides comma-separated keywords or expansion terms. Provide as many expansion terms or keywords as possible related to query.
     user: |
       Enhance search efficiency by proposing valuable terms to expand the query:
       "{query}"
@@ -130,7 +130,7 @@
   tags: ["keywords", "expansion", "ensemble"]
   template:
     system: |
-      You output only comma-separated keywords. No sentences.
+      You are a helpful assistant who directly provides comma-separated keywords or expansion terms. Provide as many expansion terms or keywords as possible related to query.
     user: |
       Elevate search performance by recommending relevant expansion phrases for the query:
       "{query}"
@@ -144,7 +144,7 @@
   tags: ["keywords", "expansion", "ensemble"]
   template:
     system: |
-      You output only comma-separated keywords. No sentences.
+      You are a helpful assistant who directly provides comma-separated keywords or expansion terms. Provide as many expansion terms or keywords as possible related to query.
     user: |
       Boost the search accuracy by providing helpful expansion terms to enrich the query:
       "{query}"
@@ -158,7 +158,7 @@
   tags: ["keywords", "expansion", "ensemble"]
   template:
     system: |
-      You output only comma-separated keywords. No sentences.
+      You are a helpful assistant who directly provides comma-separated keywords or expansion terms. Provide as many expansion terms or keywords as possible related to query.
     user: |
       Increase the search efficacy by offering beneficial expansion keywords for the query:
       "{query}"
@@ -172,7 +172,7 @@
   tags: ["keywords", "expansion", "ensemble"]
   template:
     system: |
-      You output only comma-separated keywords. No sentences.
+      You are a helpful assistant who directly provides comma-separated keywords or expansion terms. Provide as many expansion terms or keywords as possible related to query.
     user: |
       Optimize search results by suggesting meaningful expansion terms to enhance the query:
       "{query}"
@@ -186,7 +186,7 @@
   tags: ["keywords", "expansion", "ensemble"]
   template:
     system: |
-      You output only comma-separated keywords. No sentences.
+      You are a helpful assistant who directly provides comma-separated keywords or expansion terms. Provide as many expansion terms or keywords as possible related to query.
     user: |
       Enhance search outcomes by recommending beneficial expansion terms to supplement the query:
       "{query}"
@@ -200,10 +200,9 @@
   tags: ["pseudo-document", "zs"]
   template:
     system: |
-      Write a short, relevant passage to the user's query.
+      Only respond with the answer required.
     user: |
-      Query: "{query}"
-      Write a 3-5 sentence passage that would be highly relevant.
+      Write a passage that answers the following query: {query}
 
 - id: query2doc.cot.v1
   method_family: query2doc
@@ -232,7 +231,9 @@
     user: |
       Write a passage that answers the given query: 
       
-      {examples}Query: {query}
+      {examples}
+      
+      Query: {query}
       Passage:
   notes: |
     Few-shot prompt using MS MARCO training examples. The {examples} variable should contain formatted query-passage pairs.
