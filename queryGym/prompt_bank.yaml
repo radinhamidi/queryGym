@@ -15,6 +15,42 @@
   notes: |
     Minimal keyword expansion; consumers split by comma.
 
+- id: q2e.zs.v1
+  method_family: query_to_expansion
+  version: 1
+  introduced_by: "Query to Expansion Zero-Shot"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["keywords", "expansion"]
+  template:
+    user: |
+      Write a list of keywords for the following query.
+      Query: {query}
+      Keywords:
+
+- id: q2e.fs.v1
+  method_family: query_to_expansion
+  version: 1
+  introduced_by: "Query to Expansion Few-Shot with 20 examples"
+  license: "CC-BY-4.0"
+  authors: ["queryGym Team"]
+  tags: ["keywords", "expansion", "fewshot"]
+  template:
+    system: |
+      You output only comma-separated keywords. No sentences.
+    user: |
+      Write a list of keywords for the given query:
+      Query: what is vitamin d deficiency
+      Keywords: vitamin D deficiency, symptoms, causes, treatment, low vitamin D, health effects, vitamin D levels
+      Query: how to reset iphone
+      Keywords: iPhone reset, factory reset, restore iPhone, reset settings, hard reset, soft reset, iPhone troubleshooting
+      Query: calories in apple
+      Keywords: apple calories, nutrition facts, apple nutrition, calorie count, dietary information, fruit calories
+      Query: define machine learning
+      Keywords: machine learning definition, artificial intelligence, ML algorithms, supervised learning, data science, predictive models
+      Query: {query}
+      Keywords:
+
 - id: genqr_ensemble.inst1.v1
   method_family: genqr_ensemble
   version: 1

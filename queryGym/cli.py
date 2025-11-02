@@ -41,6 +41,7 @@ def run(method: str = typer.Option(...),
         ctx_jsonl: Optional[Path] = typer.Option(None, "--ctx-jsonl", help="Optional contexts JSONL"),
         output_format: str = typer.Option("both", "--output-format", help="Output format: 'concat', 'plain', or 'both' (default: both)"),
         parallel: Optional[bool] = typer.Option(None, "--parallel", help="Enable parallel generation for methods like MuGI"),
+        mode: Optional[str] = typer.Option(None, "--mode", help="Mode for methods: 'zs' (zero-shot) or 'fs' (few-shot)"),
 ):
     import yaml
     import os
@@ -58,17 +59,20 @@ def run(method: str = typer.Option(...),
         
         return re.sub(r'\$\{([^}]+)\}', replace_env_var, text)
     
-    if cfg_path:
-        yaml_content = cfg_path.read_text()
-        expanded_content = expand_env_vars(yaml_content)
-        cfg = yaml.safe_load(expanded_content)
-    else:
-        cfg = {}
+    # Default to defaults.yaml if no config path provided
+    if cfg_path is None:
+        cfg_path = Path(__file__).parent / "config" / "defaults.yaml"
+    
+    yaml_content = cfg_path.read_text()
+    expanded_content = expand_env_vars(yaml_content)
+    cfg = yaml.safe_load(expanded_content)
     
     # Override parallel flag if provided via CLI
     params = cfg.get("params", {})
     if parallel is not None:
         params["parallel"] = parallel
+    if mode is not None:
+        params["mode"] = mode
     
     mc = MethodConfig(name=method, params=params, llm=cfg["llm"],
                       seed=cfg.get("seed",42), retries=cfg.get("retries",2))
