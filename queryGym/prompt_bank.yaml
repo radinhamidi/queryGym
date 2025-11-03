@@ -39,15 +39,7 @@
     system: |
       You output only comma-separated keywords. No sentences.
     user: |
-      Write a list of keywords for the given query:
-      Query: what is vitamin d deficiency
-      Keywords: vitamin D deficiency, symptoms, causes, treatment, low vitamin D, health effects, vitamin D levels
-      Query: how to reset iphone
-      Keywords: iPhone reset, factory reset, restore iPhone, reset settings, hard reset, soft reset, iPhone troubleshooting
-      Query: calories in apple
-      Keywords: apple calories, nutrition facts, apple nutrition, calorie count, dietary information, fruit calories
-      Query: define machine learning
-      Keywords: machine learning definition, artificial intelligence, ML algorithms, supervised learning, data science, predictive models
+      {examples}
       Query: {query}
       Keywords:
 

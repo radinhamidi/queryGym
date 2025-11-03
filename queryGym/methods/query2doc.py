@@ -4,6 +4,7 @@ from ..core.registry import register_method
 from typing import List, Tuple
 import random
 import os
+import csv
 
 @register_method("query2doc")
 class Query2Doc(BaseReformulator):
@@ -13,65 +14,150 @@ class Query2Doc(BaseReformulator):
     Modes:
         - "zs" (zero-shot): Generate passage directly [default]
         - "cot" (chain-of-thought): Zero-shot with reasoning
-        - "fs" (few-shot): Uses MS MARCO training examples (dynamic)
+        - "fs" (few-shot): Uses training examples from any dataset (dynamic)
     
     Few-Shot Config (via params or env vars):
-        - msmarco_collection / MSMARCO_COLLECTION
-        - msmarco_train_queries / MSMARCO_TRAIN_QUERIES
-        - msmarco_train_qrels / MSMARCO_TRAIN_QRELS
+        - dataset_type: "msmarco", "beir", or "generic" (uses appropriate loader)
         - num_examples: Number of few-shot examples (default: 4)
+        
+    For MS MARCO datasets (dataset_type="msmarco"):
+        - collection_path / COLLECTION_PATH: Path to collection.tsv
+        - train_queries_path / TRAIN_QUERIES_PATH: Path to queries.tsv
+        - train_qrels_path / TRAIN_QRELS_PATH: Path to qrels file
+    
+    For BEIR datasets (dataset_type="beir"):
+        - beir_data_dir / BEIR_DATA_DIR: Path to BEIR dataset directory
+        - train_split: "train" or "dev" (default: "train")
+    
+    For generic datasets (dataset_type="generic" or omitted):
+        - collection_path: TSV file (docid \t text)
+        - train_queries_path: TSV file (qid \t query)
+        - train_qrels_path: TREC format (qid 0 docid relevance)
+    
+    Note: MS MARCO env vars (MSMARCO_COLLECTION, etc.) are supported for backward compatibility.
     """
     VERSION = "1.0"
     CONCATENATION_STRATEGY = "query_repeat_plus_generated"
     
     def __init__(self, cfg, llm_client, prompt_resolver):
         super().__init__(cfg, llm_client, prompt_resolver)
-        self._msmarco_data = None 
+        self._fewshot_data = None 
     
-    def _load_msmarco_data(self):
-        """Lazy load MS MARCO data for few-shot mode using existing loaders."""
-        if self._msmarco_data is not None:
-            return self._msmarco_data
+    def _load_fewshot_data(self):
+        """Lazy load training data for few-shot mode (supports MS MARCO, BEIR, or generic datasets)."""
+        if self._fewshot_data is not None:
+            return self._fewshot_data
         
         try:
-            from ..loaders import msmarco
+            # Get dataset type (msmarco, beir, or generic)
+            dataset_type = self.cfg.params.get("dataset_type", "").lower()
             
             # Get paths from config params or environment variables
-            collection_path = self.cfg.params.get("msmarco_collection", os.getenv("MSMARCO_COLLECTION"))
-            train_queries_path = self.cfg.params.get("msmarco_train_queries", os.getenv("MSMARCO_TRAIN_QUERIES"))
-            train_qrels_path = self.cfg.params.get("msmarco_train_qrels", os.getenv("MSMARCO_TRAIN_QRELS"))
+            collection_path = (
+                self.cfg.params.get("collection_path") or 
+                self.cfg.params.get("msmarco_collection") or 
+                os.getenv("COLLECTION_PATH") or 
+                os.getenv("MSMARCO_COLLECTION")
+            )
+            train_queries_path = (
+                self.cfg.params.get("train_queries_path") or 
+                self.cfg.params.get("msmarco_train_queries") or 
+                os.getenv("TRAIN_QUERIES_PATH") or 
+                os.getenv("MSMARCO_TRAIN_QUERIES")
+            )
+            train_qrels_path = (
+                self.cfg.params.get("train_qrels_path") or 
+                self.cfg.params.get("msmarco_train_qrels") or 
+                os.getenv("TRAIN_QRELS_PATH") or 
+                os.getenv("MSMARCO_TRAIN_QRELS")
+            )
             
-            if not all([collection_path, train_queries_path, train_qrels_path]):
+            # For BEIR, collection_path is actually the BEIR data directory
+            if dataset_type == "beir":
+                beir_data_dir = (
+                    self.cfg.params.get("beir_data_dir") or 
+                    collection_path or 
+                    os.getenv("BEIR_DATA_DIR")
+                )
+                train_split = self.cfg.params.get("train_split", "train")
+                
+                if not beir_data_dir:
+                    raise RuntimeError(
+                        "Few-shot mode with BEIR requires beir_data_dir (via config or env var):\n"
+                        "  - beir_data_dir / BEIR_DATA_DIR: Path to BEIR dataset directory"
+                    )
+            
+            elif not all([collection_path, train_queries_path, train_qrels_path]):
                 raise RuntimeError(
-                    "Few-shot mode requires MS MARCO paths (via config params or env vars):\n"
-                    "  - msmarco_collection / MSMARCO_COLLECTION\n"
-                    "  - msmarco_train_queries / MSMARCO_TRAIN_QUERIES\n"
-                    "  - msmarco_train_qrels / MSMARCO_TRAIN_QRELS"
+                    "Few-shot mode requires training data paths (via config params or env vars):\n"
+                    "  - dataset_type: 'msmarco', 'beir', or 'generic' (optional)\n"
+                    "  - collection_path / COLLECTION_PATH\n"
+                    "  - train_queries_path / TRAIN_QUERIES_PATH\n"
+                    "  - train_qrels_path / TRAIN_QRELS_PATH\n"
+                    "\nFor BEIR datasets:\n"
+                    "  - dataset_type: 'beir'\n"
+                    "  - beir_data_dir / BEIR_DATA_DIR: Path to BEIR dataset directory\n"
+                    "  - train_split: 'train' or 'dev' (default: 'train')\n"
+                    "\nFor backward compatibility, MS MARCO env vars are also supported:\n"
+                    "  - MSMARCO_COLLECTION, MSMARCO_TRAIN_QUERIES, MSMARCO_TRAIN_QRELS"
                 )
             
-            # Load using msmarco loaders
-            collection = msmarco.load_collection(collection_path)
-            train_queries_list = msmarco.load_queries(train_queries_path)
-            train_qrels = msmarco.load_qrels(train_qrels_path)
+            # Load data using appropriate loader based on dataset type
+            if dataset_type == "beir":
+                from ..loaders import beir
+                corpus = beir.load_corpus(beir_data_dir)
+                # Convert BEIR corpus format (dict with title/text) to simple text
+                collection = {}
+                for docid, doc_dict in corpus.items():
+                    # Combine title and text
+                    title = doc_dict.get("title", "").strip()
+                    text = doc_dict.get("text", "").strip()
+                    collection[docid] = f"{title} {text}".strip() if title else text
+                
+                train_queries_list = beir.load_queries(beir_data_dir)
+                train_queries_dict = {q.qid: q.text for q in train_queries_list}
+                train_qrels = beir.load_qrels(beir_data_dir, split=train_split)
+                
+            elif dataset_type == "msmarco":
+                from ..loaders import msmarco
+                collection = msmarco.load_collection(collection_path)
+                train_queries_list = msmarco.load_queries(train_queries_path)
+                train_queries_dict = {q.qid: q.text for q in train_queries_list}
+                train_qrels = msmarco.load_qrels(train_qrels_path)
+                
+            else:
+                # Generic: Load using DataLoader for maximum flexibility
+                from ..data.dataloader import DataLoader
+                
+                # Load collection (TSV format: docid \t text)
+                collection = {}
+                with open(collection_path, 'r', encoding='utf-8') as f:
+                    reader = csv.reader(f, delimiter='\t')
+                    for row in reader:
+                        if len(row) >= 2:
+                            docid, text = row[0], row[1]
+                            collection[docid] = text
+                
+                # Load queries and qrels
+                train_queries_list = DataLoader.load_queries(train_queries_path, format="tsv")
+                train_queries_dict = {q.qid: q.text for q in train_queries_list}
+                train_qrels = DataLoader.load_qrels(train_qrels_path, format="trec")
             
-            # Convert queries to dict
-            train_queries_dict = {q.qid: q.text for q in train_queries_list}
-            
-            self._msmarco_data = {
+            self._fewshot_data = {
                 "collection": collection,
                 "train_queries": train_queries_dict,
                 "train_qrels": train_qrels
             }
             
-            return self._msmarco_data
+            return self._fewshot_data
             
         except Exception as e:
-            raise RuntimeError(f"Failed to load MS MARCO data: {e}")
+            raise RuntimeError(f"Failed to load few-shot training data: {e}")
     
     def _select_few_shot_examples(self, num_examples: int = 4) -> List[Tuple[str, str]]:
-        """Randomly sample relevant query-passage pairs from MS MARCO training data."""
+        """Randomly sample relevant query-passage pairs from training data."""
         try:
-            data = self._load_msmarco_data()
+            data = self._load_fewshot_data()
             collection = data["collection"]
             train_queries = data["train_queries"]
             train_qrels = data["train_qrels"]

@@ -31,7 +31,22 @@ query2e:
     temperature: 0.7  
     max_tokens: 256
   params:
-    mode: "fs"  # "zs" (zero-shot) or "fs" (few-shot with 20 examples)
+    mode: "zs"  # "zs" (zero-shot) or "fs" (few-shot with dynamic examples)
+    num_examples: 4  # Number of few-shot examples (only used when mode="fs")
+    max_keywords: 20  # Maximum number of keywords to generate
+    # Few-shot data loading (only needed for mode="fs"):
+    # dataset_type: "msmarco"  # "msmarco", "beir", or "generic"
+    # For MS MARCO:
+    #   collection_path: "path/to/collection.tsv"
+    #   train_queries_path: "path/to/queries.tsv"
+    #   train_qrels_path: "path/to/qrels.txt"
+    # For BEIR:
+    #   beir_data_dir: "path/to/beir/dataset"
+    #   train_split: "train"  # or "dev"
+    # For generic:
+    #   collection_path: "path/to/collection.tsv"  # TSV: docid \t text
+    #   train_queries_path: "path/to/queries.tsv"  # TSV: qid \t query
+    #   train_qrels_path: "path/to/qrels.txt"  # TREC format
 
 query2doc:
   llm:
@@ -40,6 +55,19 @@ query2doc:
   params:
     mode: "zs"  # "zs" (zero-shot), "cot" (chain-of-thought), or "fs" (few-shot)
     num_examples: 4  # Number of few-shot examples (only used when mode="fs")
+    # Few-shot data loading (only needed for mode="fs"):
+    # dataset_type: "msmarco"  # "msmarco", "beir", or "generic"
+    # For MS MARCO:
+    #   collection_path: "path/to/collection.tsv"
+    #   train_queries_path: "path/to/queries.tsv"
+    #   train_qrels_path: "path/to/qrels.txt"
+    # For BEIR:
+    #   beir_data_dir: "path/to/beir/dataset"
+    #   train_split: "train"  # or "dev"
+    # For generic:
+    #   collection_path: "path/to/collection.tsv"  # TSV: docid \t text
+    #   train_queries_path: "path/to/queries.tsv"  # TSV: qid \t query
+    #   train_qrels_path: "path/to/qrels.txt"  # TREC format
 
 qa_expand:
   llm:

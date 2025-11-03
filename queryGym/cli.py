@@ -42,6 +42,14 @@ def run(method: str = typer.Option(...),
         output_format: str = typer.Option("both", "--output-format", help="Output format: 'concat', 'plain', or 'both' (default: both)"),
         parallel: Optional[bool] = typer.Option(None, "--parallel", help="Enable parallel generation for methods like MuGI"),
         mode: Optional[str] = typer.Option(None, "--mode", help="Mode for methods: 'zs' (zero-shot) or 'fs' (few-shot)"),
+        # Few-shot data loading options
+        dataset_type: Optional[str] = typer.Option(None, "--dataset-type", help="Dataset type: 'msmarco', 'beir', or 'generic'"),
+        collection_path: Optional[Path] = typer.Option(None, "--collection-path", help="Path to collection file (TSV for MS MARCO/generic)"),
+        train_queries_path: Optional[Path] = typer.Option(None, "--train-queries-path", help="Path to training queries file"),
+        train_qrels_path: Optional[Path] = typer.Option(None, "--train-qrels-path", help="Path to training qrels file"),
+        beir_data_dir: Optional[Path] = typer.Option(None, "--beir-data-dir", help="Path to BEIR dataset directory"),
+        train_split: Optional[str] = typer.Option(None, "--train-split", help="BEIR train split: 'train' or 'dev'"),
+        num_examples: Optional[int] = typer.Option(None, "--num-examples", help="Number of few-shot examples"),
 ):
     import yaml
     import os
@@ -67,12 +75,26 @@ def run(method: str = typer.Option(...),
     expanded_content = expand_env_vars(yaml_content)
     cfg = yaml.safe_load(expanded_content)
     
-    # Override parallel flag if provided via CLI
+    # Override parameters if provided via CLI
     params = cfg.get("params", {})
     if parallel is not None:
         params["parallel"] = parallel
     if mode is not None:
         params["mode"] = mode
+    if dataset_type is not None:
+        params["dataset_type"] = dataset_type
+    if collection_path is not None:
+        params["collection_path"] = str(collection_path)
+    if train_queries_path is not None:
+        params["train_queries_path"] = str(train_queries_path)
+    if train_qrels_path is not None:
+        params["train_qrels_path"] = str(train_qrels_path)
+    if beir_data_dir is not None:
+        params["beir_data_dir"] = str(beir_data_dir)
+    if train_split is not None:
+        params["train_split"] = train_split
+    if num_examples is not None:
+        params["num_examples"] = num_examples
     
     mc = MethodConfig(name=method, params=params, llm=cfg["llm"],
                       seed=cfg.get("seed",42), retries=cfg.get("retries",2))
