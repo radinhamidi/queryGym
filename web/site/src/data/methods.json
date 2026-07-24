@@ -38,21 +38,21 @@
     "id": "lamer",
     "name": "LameR",
     "tagline": "Context-based passage synthesis from retrieved docs.",
-    "paper": "Mackie et al., 2023",
+    "paper": "Shen et al., 2023",
     "paper_url": "https://arxiv.org/abs/2304.14233"
   },
   {
     "id": "csqe",
     "name": "CSQE",
     "tagline": "Sentence-level context expansion (KEQE + CSQE).",
-    "paper": "Lee et al., 2024",
+    "paper": "Lei et al., 2024",
     "paper_url": "https://arxiv.org/abs/2402.18031"
   },
   {
     "id": "thinkqe",
     "name": "ThinkQE",
     "tagline": "Multi-round reasoning with corpus feedback.",
-    "paper": "Le et al., 2025",
+    "paper": "Lei et al., 2025",
     "paper_url": "https://arxiv.org/abs/2506.09260"
   },
   {
